@@ -1,7 +1,8 @@
 import { nanoid } from 'nanoid'
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useDispatch } from 'react-redux'
 import { addContact } from 'redux/phonebookSlice';
+import * as yup from 'yup'
 
 export function ContactForm() {
 
@@ -10,6 +11,7 @@ export function ContactForm() {
         name: '',
         number: '',
     };
+    
     const handleSubmit = (values, { resetForm }) => {
         
         const newContact = {
@@ -20,44 +22,68 @@ export function ContactForm() {
         dispatch(addContact(newContact));
         resetForm();
     };
+
+    const schema = yup.object({
+    name: yup.string()
+      .matches(
+        /^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$/,
+        'Name may contain only letters, apostrophe, dash and spaces.'
+      )
+      .required('This field is required'),
+    number: yup.string()
+      .matches(
+        /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s./0-9]*$/,
+        'Phone number must be digits'
+      )
+      .required('This field is required'),
+  });
     
     return (
         <Formik
             initialValues={initialValues}
+            validationSchema={schema}
             onSubmit = {handleSubmit}
         >
-<div className='ContactForm'>
-       <Form
-          className='inputButton'>
-    <h2>Name</h2>
-        <label>
-        <Field className='InputField' 
-            type="text"
-            name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-            required
-                                
-        /></label> 
+    
+            <div className='ContactForm'>
+       
+                <Form
+                    className='inputButton'>
+    
+                    <h2>Name</h2>
+                    <label>
+                        <Field className='InputField' 
+                            type="text"
+                            name="name"
+                            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+                            required                      
+                        /></label> 
+                    <ErrorMessage name = 'name'/>
         
-    <h2>Number</h2>
-        <label>
-        <Field
-            type="tel"
-            name="number"
-            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-            required
+                    <h2>Number</h2>
+                    <label>
+                        <Field
             
-        /></label>   
+                            type="tel"
+                            name="number"
+                            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+                            required
+                        /></label>   
+                    <ErrorMessage name = 'number'/>
              
-        <button 
-            className='Button'
-            type='submit'>Add contact
-        </button>
-        </Form>
+        
+                    <button 
+            
+                        className='Button'
+            
+                        type='submit'>Add contact
+        
+                    </button>
+        
+                </Form>
 
+    
             </div>
-    </Formik>
+        </Formik>
     )
 };
